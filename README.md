@@ -12,14 +12,14 @@ Many articles about setting up C10M (10,000,000 concurrent connections) server o
 
 That's it. Basically, this server is just an echo server, but there is some workaround for C10M. (such as assigning multiple ports, because one address, represented as *IP:port*, can accept 65k connections)
 
-Requirements
-------------
-Used [Tornado](http://www.tornadoweb.org)==4.0.2
 
 How to run
 ----------
-
 Do tuning host for C10M: It varies which OS you're using. Just google "C10M performance tuning *{your os name}*," then you got tons of articles.
+
+Install Tornado.
+
+	pip install tornado
 
 Open two terminals, run server.py in one.
 
