@@ -19,9 +19,9 @@ Used [Tornado](http://www.tornadoweb.org)==4.0.2
 How to run
 ----------
 
-- Do tuning host for C10M: It varies which OS you're using. Just google "C10M performance tuning *{your os name}*," then you got tons of articles.
+Do tuning host for C10M: It varies which OS you're using. Just google "C10M performance tuning *{your os name}*," then you got tons of articles.
 
-- Open two terminals, run server.py in one.
+Open two terminals, run server.py in one.
 
 	(fp)Kenials-MacBook-Pro:test_1m_connections kenial$ python server.py
 	[W 141119 02:56:13 server:62]
@@ -30,7 +30,7 @@ How to run
 	[W 141119 02:56:13 server:46] 0 TCP conns, 0.00 reqs/s, 0 bytes/s
 	[W 141119 02:56:13 server:47] 0 WS conns, 0.00 reqs/s, 0 bytes/s
 
-- Run tcp_client.py or ws_client.py in other one.
+Run tcp_client.py or ws_client.py in other one.
 
 	(fp)Kenials-MacBook-Pro:test_1m_connections kenial$ python tcp_client.py
 	[W 141119 02:56:54 tcp_client:153] TCP Client: Test C1M on Tornado
