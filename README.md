@@ -1,4 +1,4 @@
-test-c10m-tornado
+tornado-test-c10m
 =================
 Simple echo server &amp; client that supports TCP / WebSocket. Using Tornado. Supposed to run on one host.
 
@@ -23,7 +23,7 @@ Do tuning host for C10M: It varies which OS you're using. Just google "C10M perf
 
 Open two terminals, run server.py in one.
 
-	(fp)Kenials-MacBook-Pro:test_1m_connections kenial$ python server.py
+	(fp)Kenials-MacBook-Pro:tornado-test-c10m kenial$ python server.py
 	[W 141119 02:56:13 server:62]
 	[W 141119 02:56:13 server:63] Server: Test C1M on Tornado (Press Q to quit)
 	[W 141119 02:56:13 server:64] ---------------------------------------------
@@ -32,7 +32,7 @@ Open two terminals, run server.py in one.
 
 Run tcp_client.py or ws_client.py in other one.
 
-	(fp)Kenials-MacBook-Pro:test_1m_connections kenial$ python tcp_client.py
+	(fp)Kenials-MacBook-Pro:tornado-test-c10m kenial$ python tcp_client.py
 	[W 141119 02:56:54 tcp_client:153] TCP Client: Test C1M on Tornado
 	[W 141119 02:56:54 tcp_client:154] -------------------------------
 	[W 141119 02:56:54 tcp_client:155]
