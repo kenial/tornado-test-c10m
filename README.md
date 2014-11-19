@@ -8,7 +8,7 @@ Many articles about setting up C10M (10,000,000 concurrent connections) server o
  2. supports both TCP and WebSocket
  3. sample code for Tornado
 
-That's it. Basically, this server is just an echo server, but some workaround is for C10M. (such as assigning multiple ports, because one address, represented as *IP:port*, can handle 65k connections at once)
+That's it. Basically, this server is just an echo server, but there is some workaround for C10M. (such as assigning multiple ports, because one address, represented as *IP:port*, can accept 65k connections)
 
 How to run
 -------------
