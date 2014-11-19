@@ -2,22 +2,26 @@ test-c10m-tornado
 =================
 Simple echo server &amp; client that supports TCP / WebSocket. Using Tornado. Supposed to run on one host.
 
+
+Goals
+-----
 Many articles about setting up C10M (10,000,000 concurrent connections) server out there, and you can find out code samples in node.js, usually supporting WebSocket. I'm working on a project using Tornado and wanna make some codes that:
 
- 1. works on one host (can be handled as a test case for unit test)
- 2. supports both TCP and WebSocket
- 3. sample code for Tornado
+ - works on one host (can be handled as a test case for unit test)
+ - supports both TCP and WebSocket
 
 That's it. Basically, this server is just an echo server, but there is some workaround for C10M. (such as assigning multiple ports, because one address, represented as *IP:port*, can accept 65k connections)
 
+Requirements
+------------
+Used [Tornado](http://www.tornadoweb.org)==4.0.2
+
 How to run
--------------
+----------
 
-1. Tuning host for C10M
-It varies which OS you're using. Just google "C10M performance tuning *{your os name}*," then you got tons of articles.
+- Do tuning host for C10M: It varies which OS you're using. Just google "C10M performance tuning *{your os name}*," then you got tons of articles.
 
-2. Install [Tornado](http://www.tornadoweb.org)
-3. Open two terminals, run server.py in one.
+- Open two terminals, run server.py in one.
 
 	(fp)Kenials-MacBook-Pro:test_1m_connections kenial$ python server.py
 	[W 141119 02:56:13 server:62]
@@ -26,7 +30,7 @@ It varies which OS you're using. Just google "C10M performance tuning *{your os 
 	[W 141119 02:56:13 server:46] 0 TCP conns, 0.00 reqs/s, 0 bytes/s
 	[W 141119 02:56:13 server:47] 0 WS conns, 0.00 reqs/s, 0 bytes/s
 
-4. Run tcp_client.py or ws_client.py in other one.
+- Run tcp_client.py or ws_client.py in other one.
 
 	(fp)Kenials-MacBook-Pro:test_1m_connections kenial$ python tcp_client.py
 	[W 141119 02:56:54 tcp_client:153] TCP Client: Test C1M on Tornado
