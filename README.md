@@ -9,7 +9,6 @@ Many articles about setting up C10M (10,000,000 concurrent connections) server o
 
 Basically, server in this code is just an echo server, but there is some workaround for C10M.
 
-
 How to run
 ----------
 Do tuning host for C10M: It varies which OS you're using. Just google "C10M performance tuning *{your os name}*," then you got tons of articles.
@@ -44,3 +43,8 @@ Run tcp_client.py or ws_client.py in other one.
 	1000
 	[W 141119 02:57:07 tcp_client:142] elapsed: 0.013293
 
+Working notes
+-------------
+http://keniallee.blogspot.com/2014/11/testing-c10m-on-host-with-tornado.html
+
+(If you're a Korean, read this: http://kenial.tistory.com/917)
