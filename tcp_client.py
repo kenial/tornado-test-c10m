@@ -29,40 +29,43 @@ define("host", default="127.0.0.1", help="Server IP", type=str)
 options.parse_command_line(sys.argv)
 
 connections = set()
-conn_count = 0
-write_count = 0
+conn_try_count = 0
+write_try_count = 0
 
 def on_read(data):
     if data:
         logging.info("on_read (%d bytes): " % (len(data),))
 
 def on_write():
-    global write_count
-    logging.info("on_write")
-    write_count -= 1
+    global write_try_count
+    write_try_count -= 1
+    logging.info("on_write: %d", write_try_count)
 
 def on_close(*kargs, **kwargs):
     logging.info("on_close kargs: %s kwargs: %s" % (kargs, kwargs))
 
 def pass_stream(stream):
     def on_connect(*kargs, **kwargs):
-        global conn_count
+        global conn_try_count
         logging.info("on_connect kargs: %s kwargs: %s" % (kargs, kwargs))
         if not stream.closed():
             stream.set_close_callback(on_close)
             stream.read_until_close(on_read, on_read)
             connections.add(stream)
-        conn_count -= 1
+        conn_try_count -= 1
     return on_connect
 
 def make_connection(host, port):
-    global conn_count
+    global conn_try_count
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+    s.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     s.settimeout(0)
     stream = tornado.iostream.IOStream(s)
-    stream.set_nodelay(True)
-    conn_count += 1
+    conn_try_count += 1
     stream.connect((host, port), callback=pass_stream(stream))
+
+def write_message(stream, message):
+    stream.write(message, callback=on_write)
 
 def close_all_connections():
     while connections:
@@ -72,7 +75,7 @@ def close_all_connections():
         )
 
 def console_io_loop():
-    global write_count
+    global write_try_count
     while True:
         logging.warn("Concurrent conns: %d" % (len(connections), ))
         logging.warn("(C)reate TCP connections")
@@ -92,7 +95,7 @@ def console_io_loop():
                 port = options.tcpport
                 host = options.host
                 for i in xrange(connection_count):
-                    while conn_count > 100:
+                    while conn_try_count > 100:
                         time.sleep(0.001)
                     tornado.ioloop.IOLoop.current().add_callback(
                         make_connection,
@@ -107,12 +110,13 @@ def console_io_loop():
             message = "M" * message_length
             starting = time.time()
             for i, stream in enumerate(connections):
-                while write_count > 100:
+                while write_try_count > 100:
                     time.sleep(0.001)
                 tornado.ioloop.IOLoop.current().add_callback(
-                    stream.write, *(message,)
+                    write_message,
+                    *(stream, message,)
                 )
-                write_count += 1
+                write_try_count += 1
             logging.warn("Sent to %d connections (%d bytes)" % (len(connections), len(connections) * len(message)))
         elif line == "r":
             close_all_connections()

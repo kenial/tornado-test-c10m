@@ -1,8 +1,8 @@
 """
-test-c10m-tornado: Echo server
+test-c10m-tornado: server.py
 
-Accepts TCP and WS connections.
-This server is intended to handle 10M concurrent connections "in one host."
+Simple echo server that acccepts TCP and WS connections.
+This codes are intended to handle 10M concurrent connections "in one host."
 """
 # Written by Kenial Lee (keniallee@gmail.com)
 

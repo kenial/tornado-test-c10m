@@ -7,6 +7,7 @@ import sys
 import logging
 import time
 import thread
+import socket
 
 import tornado.websocket
 import tornado.ioloop
@@ -25,12 +26,12 @@ define("host", default="127.0.0.1", help="Server IP", type=str)
 options.parse_command_line(sys.argv)
 
 connections = set()
-conn_count = 0
-write_count = 0
+conn_try_count = 0
+write_try_count = 0
 
 @tornado.gen.coroutine
 def loop_websocket(ws):
-    global write_count
+    global write_try_count
     while True:
         if ws.stream.closed():
             logging.info("loop out - closed!")
@@ -40,17 +41,18 @@ def loop_websocket(ws):
                 pass
             break
         data = yield ws.read_message()
-        write_count -= 1
+        write_try_count -= 1
         if data:
             logging.info("on_message (%d): " % (len(data),))
 
 @tornado.gen.coroutine
 def make_websocket_connection(host, port):
-    global conn_count
+    global conn_try_count
     url = "ws://%s:%d/ws" % (host, port)
-    conn_count += 1
+    conn_try_count += 1
     ws = yield tornado.websocket.websocket_connect(url)
-    conn_count -= 1
+    conn_try_count -= 1
+    ws.stream.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     connections.add(ws)
     loop_websocket(ws)
 
@@ -61,7 +63,7 @@ def close_all_connections():
         time.sleep(0)
 
 def console_io_loop():
-    global conn_count
+    global conn_try_count
     while True:
         logging.warn("Concurrent conns: %d" % (len(connections), ))
         logging.warn("(C)reate WS connections")
@@ -80,7 +82,7 @@ def console_io_loop():
             port = options.wsport
             for i in xrange(connection_count):
                 try:
-                    while conn_count > 100:
+                    while conn_try_count > 100:
                         time.sleep(0.001)
                     tornado.ioloop.IOLoop.current().add_callback(
                         make_websocket_connection,
@@ -95,7 +97,7 @@ def console_io_loop():
             message = "M" * message_length
             starting = time.time()
             for i, ws in enumerate(connections):
-                while write_count > 100:
+                while write_try_count > 100:
                     time.sleep(0.001)
                 tornado.ioloop.IOLoop.current().add_callback(
                     ws.write_message,

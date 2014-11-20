@@ -1,10 +1,15 @@
-# Copyright 2014, Kenial Lee
+"""
+test-c10m-tornado: socket_connection.py
+
+Server and connection class for TCP / WebSocket. If you wanna make your own
+server logic, take and extend these freely.
+"""
+# Written by Kenial Lee (keniallee@gmail.com)
 
 import time
 import logging
+import socket
 
-#############################
-# setting Tornado environment
 import tornado
 import tornado.ioloop
 import tornado.web
@@ -12,10 +17,12 @@ import tornado.websocket
 import tornado.tcpserver
 import tornado.autoreload
 
-#####################################################
+
 # WebSocket stuff
 class WebSocketApp(tornado.web.Application):
-    """Websocket application for Fountain connection"""
+    """Tornado WebSocket application.
+    """
+
     def __init__(self):
         logging.info('WebSocketApp __init__')
         handlers = [
@@ -49,8 +56,11 @@ class WebSocketApp(tornado.web.Application):
         self.processed_bytes = 0
         return rps, bps
 
+
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
-    """Handler for Fountain connection"""
+    """Provides ECHO logic.
+    """
+
     def __init__(self, application, request, **kwargs):
         logging.info("WebSocketHandler:__init__ from %s", request.connection.context.address)
         super(self.__class__, self).__init__(application, request, **kwargs)
@@ -58,13 +68,10 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def allow_draft76(self):    # for iOS 5.0 Safari
         return True
 
-    # called on open!
     def open(self):
         logging.info("WebSocketHandler:open")
-        self.set_nodelay(True)  # no delay for small messages
-        self.application.handle_open(self)
+        self.set_nodelay(True)
 
-    # already defined on WebSocketHandler
     def close(self):
         logging.info("WebSocketHandler:close")
         super(self.__class__, self).close()
@@ -76,13 +83,14 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, data):
         logging.info("WebSocketHandler:on_message (%d bytes)" % len(data))
         self.application.add_process_stats(len(data))
-        self.write_message(data)    # ECHO
+        # just ECHO
+        self.write_message(data)
 
     def write_message(self, data):
         logging.info("WebSocketHandler:write_message (%d bytes)" % len(data))
         try:
             if not self.stream.closed():
-                tornado.websocket.WebSocketHandler.write_message(self, data)
+                super(self.__class__, self).write_message(data)
                 self.application.add_process_stats(len(data))
         except tornado.iostream.StreamClosedError, ex:
             logging.error("write_message failed. close again...", exc_info=True)
@@ -90,12 +98,15 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             raise ex
 
 
-##############################################################
+
 # TCP socket stuff
 class TCPSockServer(tornado.tcpserver.TCPServer):
+    """Tornado TCP socket server.
+    """
+
     def __init__(self, io_loop=None, ssl_options=None, **kwargs):
         logging.info('TCPSockServer.__init__')
-        tornado.tcpserver.TCPServer.__init__(self, io_loop=io_loop, ssl_options=ssl_options, **kwargs)
+        super(self.__class__, self).__init__(io_loop=io_loop, ssl_options=ssl_options, **kwargs)
         self.connections = set()
         self.last_stats_time = time.time()
         self.processed_requests = 0
@@ -103,6 +114,7 @@ class TCPSockServer(tornado.tcpserver.TCPServer):
 
     def handle_stream(self, stream, address):
         logging.info("TCPSockServer:handle_stream %s", address)
+        stream.set_nodelay(True)
         connection = TCPSockConnection(stream, address, self)
         connection.order = len(self.connections)
         self.connections.add(connection)
@@ -126,6 +138,9 @@ class TCPSockServer(tornado.tcpserver.TCPServer):
 
 
 class TCPSockConnection(object):
+    """Provides ECHO Logic.
+    """
+
     def __init__(self, stream, address_from, sock_server):
         logging.info('TCPSockConnection.__init__ from %s', address_from)
         self.sock_server = sock_server
@@ -158,25 +173,19 @@ class TCPSockConnection(object):
             logging.info('TCPSockConnection (%d):_on_read but zero length data', self.order)
 
     def _on_read_finish(self, data):
-        # if data is remaining, process it
         if len(data) > 0:
             logging.info('TCPSockConnection (%d):_on_read_finish (%d bytes)', self.order, len(data))
+            self.sock_server.add_process_stats(len(data))
         else:
             logging.info('TCPSockConnection (%d):_on_read_finish but zero length data', self.order)
 
     def _on_read_line(self, data):
         logging.info('TCPSockConnection (%d):_on_read_line', self.order)
         pass
-        # logging.info('TCPSockConnection (%d):_on_read_line read a new line from %s', self.address)
-        # MessageHub.shared().process_json_string(self, data)
 
     def _on_write_complete(self):
         logging.info('TCPSockConnection (%d):_on_write_complete', self.order)
         pass
-
-        # logging.info('wrote a line to %s', self.address)
-        # if not self.stream.reading():
-        #     self.stream.read_until('\n', self._on_read_line)
 
     def _on_close(self):
         logging.info('TCPSockConnection (%d):_on_close', self.order)
