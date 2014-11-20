@@ -16,16 +16,15 @@ import tornado.autoreload
 
 from tornado.options import define, options
 
-# Assuming that 50K ephemeral ports available, 50,000 * 200 = 10,000,000 (10M)
-PORT_COUNT = 200
+from config import PORT_COUNT, TCP_PORT, HOST_IP
 
 # For displaying throughput
 processed_requests, processed_bytes = 0, 0
 last_display_time = time.time()
 
 # IP, Ports for TCP
-define("tcpport", default=8001, help="TCP port", type=int)
-define("host", default="127.0.0.1", help="Server IP", type=str)
+define("tcpport", default=TCP_PORT, help="TCP port", type=int)
+define("host", default=HOST_IP, help="Server IP", type=str)
 options.parse_command_line(sys.argv)
 
 connections = set()

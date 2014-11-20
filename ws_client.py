@@ -16,13 +16,14 @@ import tornado.autoreload
 
 from tornado.options import define, options
 
-PORT_COUNT = 50
+from config import PORT_COUNT, WS_PORT, HOST_IP
 
+# For displaying throughput
 processed_requests, processed_bytes = 0, 0
 last_display_time = time.time()
 
-define("wsport", default=8501, help="WebSocket port", type=int)
-define("host", default="127.0.0.1", help="Server IP", type=str)
+define("wsport", default=WS_PORT, help="WebSocket port", type=int)
+define("host", default=HOST_IP, help="Server IP", type=str)
 options.parse_command_line(sys.argv)
 
 connections = set()

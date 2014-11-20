@@ -8,7 +8,6 @@ server logic, take and extend these freely.
 
 import time
 import logging
-import socket
 
 import tornado
 import tornado.ioloop
@@ -71,6 +70,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         logging.info("WebSocketHandler:open")
         self.set_nodelay(True)
+        self.application.handle_open(self)
 
     def close(self):
         logging.info("WebSocketHandler:close")

@@ -14,16 +14,15 @@ import time
 import tornado.ioloop
 from tornado.options import define, options
 
-# Assuming that 50K ephemeral ports available, 50,000 * 200 = 10,000,000 (10M)
-PORT_COUNT = 200
+from config import PORT_COUNT, TCP_PORT, WS_PORT
 
 # For displaying throughput
 processed_requests, processed_bytes = 0, 0
 last_display_time = time.time()
 
 # Ports for TCP and WS (8001~8200, 8501~8700)
-define("tcpport", default=8001, help="TCP port", type=int)
-define("wsport", default=8501, help="WebSocket port", type=int)
+define("tcpport", default=TCP_PORT, help="TCP port", type=int)
+define("wsport", default=WS_PORT, help="WebSocket port", type=int)
 options.parse_command_line(sys.argv)
 
 from socket_connection import WebSocketApp, TCPSockServer
@@ -61,6 +60,8 @@ if __name__ == "__main__":
     logging.warn("Server: Test C1M on Tornado (Press Q to quit)")
     logging.warn("---------------------------------------------")
 
+    # Assigning multiple ports on socket servers.
+    # Because one address, represented as *IP:port*, can accept 65,535 connections as maximum.
     logging.info("WebSocketApp listen: {0}".format(options.wsport))
     webapp = WebSocketApp()
     for i in range(PORT_COUNT):

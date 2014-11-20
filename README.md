@@ -5,12 +5,9 @@ Simple echo server &amp; client that supports TCP / WebSocket. Using Tornado. Su
 
 Goals
 -----
-Many articles about setting up C10M (10,000,000 concurrent connections) server out there, and you can find out code samples in node.js, usually supporting WebSocket. I'm working on a project using Tornado and wanna make some codes that:
+Many articles about setting up C10M (10,000,000 concurrent connections) server out there, and you can find out code samples, usually supporting WebSocket. This sample code is backed by Tornado and supports TCP / WebSocket.
 
- - works on one host (can be handled as a test case for unit test)
- - supports both TCP and WebSocket
-
-That's it. Basically, this server is just an echo server, but there is some workaround for C10M. (such as assigning multiple ports, because one address, represented as *IP:port*, can accept 65k connections)
+Basically, server in this code is just an echo server, but there is some workaround for C10M.
 
 
 How to run
